@@ -1,0 +1,15 @@
+暗号の分野では、暗号化された文字列をダイジェスト
+
+パスワード付きのモデルを作成する場合、Rails の標準機能にある has_secure_password を利用するのが効率が良く安全な方法です。
+これでログイン認証を一括で行ってくれる
+has_secure_password は暗号化もしてくれますが、暗号化のために bcrypt Gem が必要です。
+
+  Prefix Verb URI Pattern          Controller#Action
+    root GET  /                    toppages#index
+  signup GET  /signup(.:format)    users#new
+   users GET  /users(.:format)     users#index
+         POST /users(.:format)     users#create
+new_user GET  /users/new(.:format) users#new
+    user GET  /users/:id(.:format) users#show
+    
+prefixの値を指定するとそのurlというかcontrollerに飛ぶことができる。

@@ -1,0 +1,13 @@
+bundle install --without production
+cloud9はdevelopmento環境
+herokuはproduction環境
+
+これは環境変数 RAILS_ENV の設定によるものです。config/puma.rb の中にenvironment ENV.fetch("RAILS_ENV") { "development" }
+がある。
+
+environment ENV.fetch("RAILS_ENV") { "development" }
+はRAILS_ENVの環境になる、設定がなければdefaultであるdevelopment環境になるという意味である。
+その値を受け取るのはenvironmentである。
+
+$ git push heroku master これでデプロイが完了する。
+Heroku 上で環境変数を設定するには、 heroku config:set 環境変数=値 を使用します。

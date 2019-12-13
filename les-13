@@ -1,0 +1,90 @@
+railsのバージョン確認　gem list rails
+railsプロジェクトの作成　rails _5.2.2_ new message-board --database=mysql --skip-bundle --skip-test
+データベースの作成　raills db:create
+Bundler とは、 Ruby や Rails のプロジェクトで使用するライブラリの管理ツールです。
+Gemfile というファイルにインストールしたいライブラリ名と必要なバージョンの一覧を全て書き出し、 
+bundle install で一気にそれらのライブラリをインストールすることができるようになります。
+
+gem 'ライブラリ名', 'バージョン指定'という形に対して
+～～～
+# バージョン 5.2.x の内、最新をインストールする
+gem 'rails', '~> 5.2.2'
+
+# バージョン 0.4.4 以上で 0.6.0 未満の中で、最新のライブラリをインストールする
+gem 'mysql2', '>= 0.4.4', '< 0.6.0'
+
+# 最新のライブラリをインストールする（バージョン指定無し）
+gem 'spring
+～～～
+このようにインストールされる。
+
+Rails では rails c というコマンドを実行すると、Rails の機能を REPL が起動します。c は console の略です。
+
+rails g model Message content:stringによって、model及びマイグレーションファイルが作成される。
+マイグレーションの実行　rails db:migrate
+mysql -u rootでデータベースを確認する。
+
+今度は Rails → ActiveRecord → mysql2 という流れで 
+Rails アプリ（メッセージボードなど）とデータベース（message-board_developmentなど）が接続されます。
+AcrtibeRecordでsqlは一切書かずに操作が可能になる。
+作成したモデル名:methodでデータベースをいじくれる。(rails c上で実行可能)
+モデル作成(単数)すると、マイグレーションはその複数形で作られるため、モデル単数⇔データベース複数形の関係が完成する。
+routingの設定
+
+Rails.application.routes.draw do
+    root to:  'messageselve#index'
+    resources :messageselve
+end
+
+基本的にこれでok、routingはrails routesで調べられる。
+rails g controller Messageselve ~~~でコントローラーの作成、
+defなんちゃらを7つ作成
+viewにedit,index,new,showの4つを作成、layoutsは重複の簡略化
+application.htmlにはデフォルトの物が入っている、csrf_meta_tags と csp_meta_tag はセキュリティ対策用
+controllerでデータを呼び出す。@はインスタンス変数としてviewへ渡すため
+
+pathのルート↓↓
+index	messages_path	/messages
+show	message_path(@message)	/messages/1 など
+new	new_message_path	/messages/new
+edit	edit_message_path(@message)	/messages/1/edit など
+
+
+validates:content, presence: true, length: { maximum: 255 }
+でフォームのチェックができる
+outの場合はmessage.errors 変数にエラー内容が格納される
+そのため、 View 側で message.errors があるか確認し、あれば表示すれば良いのです。
+また、 message.errors と複数形で書いてある通り、複数のエラーに対応可能です。
+
+
+  <% if message.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(message.errors.count, "error") %> prohibited this message from being saved:</h2>
+
+      <ul>
+        <% message.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  
+これがrails で用意されているデフォルトのエラー表示コード
+
+
+gemに雷を使いしbundle install
+
+
+.page(params[:page])
+Controller 側では Message.all に対して .page(params[:page]) を付けるだけです。
+View 側では、ページネーションを表示したいところに <%= paginate @messages %> を追加するだけです。
+page(params[:page]).per(3)としてあげれば3件一ページ
+
+テストデータの作成↓
+db/seeds.データを記載
+rails db:seedで実行
+
+rails db:drop はデータベースを削除します。そのため、テーブルとレコードは全て削除されます。
+rails db:create は、データベースを作成します。
+rails db:schema:load は db/schema.rb にあるテーブル情報をもとにデータベースを構築します。
+rails db:seed は db/seeds.rb を実行します。
