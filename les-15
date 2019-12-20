@@ -13,3 +13,151 @@ new_user GET  /users/new(.:format) users#new
     user GET  /users/:id(.:format) users#show
     
 prefixの値を指定するとそのurlというかcontrollerに飛ぶことができる。
+
+
+
+
+初めにtoppageを作成、モデルなし、コントローラーはtoppages
+rootはroot to toppages#indexのみ、初期rootはindexに誘導
+viewはindex(トップページ)のみ
+Userモデルを作成、name,email,passの三項目
+user,viewのindexはhelpも使って表記
+
+次にログイン機能の追加
+ログインの仕組みについて、ステートフル通信
+ブラウザが持ってるログイン情報はcookieに保存、サーバーが持ってる情報はsessionに保存される。
+通信の度にログイン情報をお互いに照合する。
+sessionはモデルではなくrailsが持ってるsessionシステムによって管理する。
+
+  Prefix Verb   URI Pattern          Controller#Action
+    root GET    /                    toppages#index
+   login GET    /login(.:format)     sessions#new
+         POST   /login(.:format)     sessions#create
+  logout DELETE /logout(.:format)    sessions#destroy
+  signup GET    /signup(.:format)    users#new
+   users GET    /users(.:format)     users#index
+         POST   /users(.:format)     users#create
+new_user GET    /users/new(.:format) users#new
+    user GET    /users/:id(.:format) users#show
+    
+
+
+sessionsコントローラーを追加。
+
+1対1の関係、
+
+
+
+
+
+
+tasklist
+
+Userモデルを追加、name,email,confidationカラムを追加する。
+modelのuser.rbに、カラム内容の規制を追加
+
+
+()はles15での追加機能
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　(非ログイン、ログイン中)　
+tasks GET    /tasks(.:format)         tasks#index　  トップページ、viewあり、(トップページ(ログイン画面へのリンク)、コメントも表示)
+POST   /tasks(.:format)   　          tasks#create　 タスク、ステータスの送信処理(ログイン画面に戻す、送信処理)
+new_task GET    /tasks/new(.:format)  tasks#new　　　タスク、ステータスの送信画面、viewあり(ログイン画面に戻す、送信画面)
+edit_task GET    /tasks/:id/edit(.:format)tasks#edit タスク、ステータスの編集画面、viewあり(ログイン画面に戻す、編集画面)
+task GET    /tasks/:id(.:format)      tasks#show　　 タスク、ステータスの詳細画面、viewあり(ログイン画面に戻す、詳細削除集画面)
+PATCH  /tasks/:id(.:format)           tasks#update　 タスク、ステータスのsomething
+PUT    /tasks/:id(.:format)           tasks#update　 タスク、ステータスの編集処理
+DELETE /tasks/:id(.:format)           tasks#destroy　タスク、ステータスの削除処理
+root GET    /                         tasks#index　　トップページ
+                                      users#new　　　ユーザー登録、viewあり
+users GET    /users(.:format)         users#index　　ログイン後のトップページ、(viewありユーザー一覧) 
+POST   /users(.:format)               users#create
+
+tasks#indexをログイン中はusers#index、非グイン中はtoppage#index                     
+ユーザー登録画面(新規view) users#new
+ユーザー登録処理(viewなし) users#create失敗したらusers#newに戻す,成功したらrootに飛ばすが非ログインでroot(/)はlogin_urlに飛ばす
+ログイン後のトップページ　 tasks#indexにする。(投稿が書いてある)
+ユーザーの詳細ページ　　　 tasks#show(タスクステータスの詳細、)
+##12/18の追加事項
+login GET    /login(.:format)           sessions#new   　　　 ログイン画面、viewあり
+POST   /login(.:format)                 sessions#create　   　ログイン処理、viewなし⇒rootに飛ばす。ここでそのユーザーのコメントのみ表示
+logout DELETE /logout(.:format)         sessions#destroy      ログアウト、viewなし
+
+
+
+
+ログイン画面（ログインしてないやつは全員ここに飛ばす）
+
+
+
+                     
+root GET    /                   　　　　toppages#index　　    初期画面、トップページ(コメント画面かつコメント入力、削除画面)
+signup GET    /signup(.:format) 　　　  users#new　　　　     ユーザー登録、viewあり
+users GET    /users(.:format)           users#index　　　     ログイン後のトップページ、(viewありユーザー一覧) 
+POST   /users(.:format)                 users#create　　 　   ユーザー登録処理、viewなし
+new_user GET    /users/new(.:format)    　　　　　 　　　     不要
+user GET    /users/:id(.:format)        users#show　　   　　 ユーザーの詳細ページ(コメント画面かつ、削除画面、viewあり)
+login GET    /login(.:format)           sessions#new   　　　 ログイン画面、viewあり
+POST   /login(.:format)                 sessions#create　   　ログイン処理、viewなし
+logout DELETE /logout(.:format)         sessions#destroy      ログアウト、viewなし
+microposts POST   /microposts(.:format) microposts#create     コメントの投稿、viewはトップページ
+micropost DELETE /microposts/:id(.:format) microposts#destroy コメントの削除、viewは画面はトップページ
+                
+                
+                
+  get 'messages/:id', to: 'messages#show'
+  post 'messages', to: 'messages#create'
+  put 'messages/:id', to: 'messages#update'
+  delete 'messages/:id', to: 'messages#destroy'
+
+  # index: show の補助ページ
+  get 'messages', to: 'messages#index'
+
+  # new: 新規作成用のフォームページ
+  get 'messages/new', to: 'messages#new'
+  
+  CRUDの見本
+  
+  
+  
+ユーザー登録画面(新規view) users#new
+ユーザー登録処理(viewなし) users#create、(登録完了で@user=showに飛ぶが存在せず、tasks#showに飛ばす。　)
+の二つのコントローラーを追加。
+
+
+
+
+
+
+
+
+
+　　　　カラム
+task→content,status,id(usersとリンクするカラムを追加)
+users→id ,name,email,pass
+
+rails g migration AddUserRefToTasks user:referencesを用いてtaskにuser_idという外部カラムが追加される。
+
+
+
+
+
+
+やるべきこと
+投稿表示、投稿日時の追加
+
+・idが全員の総計になっている
+・サインアップのエラー表示の詳細
+・ログインのエラー表示が拙い
+
+
+１１章からスタート
+user間にrelationshipモデルを追加、共にuse＿idリンクだがuserとfolloweの名称
+ルータに
+resources :relationships, only: [:create, :destroy]  フォローアンフォロー時のルーティング
+resources :users, only: [:index, :show, :new, :create] do 
+    member do   
+      get :followings  ここはshowページなどでユーザーの持つフォローフォロワーを入手するためのルーティング
+      get :followers
+    end
+  end
+のmember部分を追加した。
